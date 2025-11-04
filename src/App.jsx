@@ -1,28 +1,62 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
+import Hero from './components/Hero';
+import About from './components/About';
+import Projects from './components/Projects';
+import AdminPanel from './components/AdminPanel';
+
+const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [cv, setCv] = useState(null);
+  const [projects, setProjects] = useState([]);
+
+  const refs = {
+    projects: useRef(null),
+    admin: useRef(null),
+  };
+
+  const scrollTo = (key) => {
+    const el = refs[key]?.current;
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const loadData = async () => {
+    try {
+      const [cvRes, projRes] = await Promise.all([
+        fetch(`${API_BASE}/api/cv`),
+        fetch(`${API_BASE}/api/projects`),
+      ]);
+      if (cvRes.ok) setCv(await cvRes.json());
+      if (projRes.ok) setProjects(await projRes.json());
+    } catch (e) {
+      // noop
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
+    <div className="min-h-screen bg-white text-gray-900">
+      <Hero onScrollToContent={scrollTo} />
+
+      <div ref={refs.projects}>
+        <Projects projects={projects} />
       </div>
+
+      <About cv={cv} />
+
+      <div ref={refs.admin}>
+        <AdminPanel onUpdated={loadData} />
+      </div>
+
+      <footer className="py-10 text-center text-sm text-gray-500">
+        <p>Built with a modern 3D hero, smooth parallax, and a live backend CMS.</p>
+      </footer>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
