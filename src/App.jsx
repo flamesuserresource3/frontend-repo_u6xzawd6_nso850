@@ -3,6 +3,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Projects from './components/Projects';
 import AdminPanel from './components/AdminPanel';
+import RecruiterLanding from './components/RecruiterLanding';
 
 const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -13,6 +14,7 @@ function App() {
   const refs = {
     projects: useRef(null),
     admin: useRef(null),
+    recruiters: useRef(null),
   };
 
   const scrollTo = (key) => {
@@ -42,6 +44,10 @@ function App() {
     <div className="min-h-screen bg-white text-gray-900">
       <Hero onScrollToContent={scrollTo} />
 
+      <div ref={refs.recruiters}>
+        <RecruiterLanding cv={cv} projects={projects} />
+      </div>
+
       <div ref={refs.projects}>
         <Projects projects={projects} />
       </div>
@@ -53,7 +59,7 @@ function App() {
       </div>
 
       <footer className="py-10 text-center text-sm text-gray-500">
-        <p>Built with a modern 3D hero, smooth parallax, and a live backend CMS.</p>
+        <p>Built with a modern 3D hero, a recruiter-focused overview, and a live backend CMS.</p>
       </footer>
     </div>
   );
